@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2025 Course Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      color: #207c33;
+    }
+    button {
+      background-color: #99caac;
+      color: rgb(23, 23, 25);
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .hidden {
+      display: none;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .options label {
+      display: block;
+      margin: 5px 0;
+    }
+    .progress {
+      margin: 20px 0;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Start Quiz Section -->
+  <div id="start-section">
+    <h1>2025 Course Finder</h1>
+    <p>Discover Courses & Careers Based on Your Personality Traits</p>
+    <button onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <!-- Quiz Section -->
+  <div id="quiz-section" class="hidden">
+    <h2>Personality Quiz</h2>
+    <div id="question-container"></div>
+    <div class="progress" id="progress"></div>
+    <button id="next-button" onclick="nextQuestion()" disabled>Next</button>
+  </div>
+
+  <!-- Recommendations Section -->
+  <div id="recommendations-section" class="hidden">
+    <h2>Your Recommendations</h2>
+    <p id="recommendation-text">Based on your answers, here are some courses and careers for you:</p>
+    <ul id="recommendations-list"></ul>
+    <button onclick="restartQuiz()">Restart Quiz</button>
+  </div>
+
+  <!-- About Us Section -->
+  <div id="about-section">
+    <p>About Us</p>
+    <p>This platform helps users discover courses and careers aligned with their personality traits.</p>
+    <p>Contact us at: <a href="mailto:www.coursefinder123@gmail.com">www.coursefinder123@gmail.com</a></p>
+    <p>© 2025 Course Finder. All rights reserved.</p>
+  </div>
+</div>
+
+<script>
+  // Quiz Data: Mix of Tech and Non-Tech Questions
+  const quizQuestions = [
+    { question: "Do you enjoy working with computers and technology?", options: ["Yes, I love it", "Sometimes", "Rarely", "No, I prefer non-tech roles"], scores: [1, 2, 3, 4] },
+    { question: "Are you comfortable solving complex problems?", options: ["Yes, I thrive on challenges", "Sometimes", "Rarely", "No, I prefer simple tasks"], scores: [1, 2, 3, 4] },
+    { question: "Do you enjoy creative activities like writing or art?", options: ["Yes, I love it", "Sometimes", "Rarely", "No, I dislike it"], scores: [4, 3, 2, 1] },
+    { question: "How do you feel about working in teams?", options: ["I love teamwork", "I’m okay with it", "I prefer working alone", "I avoid it"], scores: [4, 3, 2, 1] },
+    { question: "Are you interested in coding or programming?", options: ["Yes, I enjoy it", "Sometimes", "Rarely", "No, I dislike it"], scores: [1, 2, 3, 4] }
+  ];
+
+  const recommendations = {
+    1: {
+      courses: ["Computer Science", "Data Science", "Cybersecurity", "Software Engineering"],
+      careers: ["Software Developer", "Data Analyst", "IT Specialist", "Cybersecurity Expert"]
+    },
+    2: {
+      courses: ["Business Administration", "Finance", "Project Management", "Marketing"],
+      careers: ["Financial Analyst", "Project Manager", "Marketing Specialist", "Business Consultant"]
+    },
+    3: {
+      courses: ["Graphic Design", "Creative Writing", "Film Production", "Digital Marketing"],
+      careers: ["Art Director", "Copywriter", "Filmmaker", "Content Creator"]
+    },
+    4: {
+      courses: ["Psychology", "Social Work", "Education", "Environmental Science"],
+      careers: ["Counselor", "Social Worker", "Teacher", "Environmental Scientist"]
+    }
+  };
+
+  let currentQuestionIndex = 0;
+  let totalScore = 0;
+
+  // Start Quiz Functionality
+  function startQuiz() {
+    console.log("Start Quiz button clicked"); // Debugging line
+    document.getElementById('start-section').classList.add('hidden'); // Hide start section
+    document.getElementById('quiz-section').classList.remove('hidden'); // Show quiz section
+    loadQuestion(); // Load the first question
+  }
+
+  // Load Question
+  function loadQuestion() {
+    const questionContainer = document.getElementById('question-container');
+    questionContainer.innerHTML = ''; // Clear previous question
+
+    if (currentQuestionIndex < quizQuestions.length) {
+      const questionData = quizQuestions[currentQuestionIndex];
+      questionContainer.innerHTML = `
+        <div class="question">${questionData.question}</div>
+        <div class="options">
+          ${questionData.options.map((option, index) => `
+            <label>
+              <input type="radio" name="answer" value="${index}">
+              ${option}
+            </label>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('next-button').disabled = true; // Disable Next until an option is selected
+      document.getElementById('progress').textContent = `Question ${currentQuestionIndex + 1} of ${quizQuestions.length}`;
+    } else {
+      showRecommendations();
+    }
+  }
+
+  // Handle Answer Selection
+  document.addEventListener('change', (event) => {
+    if (event.target.name === 'answer') {
+      totalScore += quizQuestions[currentQuestionIndex].scores[parseInt(event.target.value)];
+      document.getElementById('next-button').disabled = false; // Enable Next after selection
+    }
+  });
+
+  // Move to Next Question
+  function nextQuestion() {
+    currentQuestionIndex++;
+    loadQuestion();
+  }
+
+  // Show Recommendations
+  function showRecommendations() {
+    document.getElementById('quiz-section').classList.add('hidden');
+    document.getElementById('recommendations-section').classList.remove('hidden');
+
+    // Determine recommendation category based on total score
+    const category = Math.ceil(totalScore / quizQuestions.length); // Average score determines category
+    const recommendationData = recommendations[category];
+
+    const recommendationsList = document.getElementById('recommendations-list');
+    recommendationsList.innerHTML = ''; // Clear previous recommendations
+
+    recommendationData.courses.forEach(course => {
+    const li = document.createElement('li');
+    li.textContent = `Course: ${course}`;
+    recommendationsList.appendChild(li);
+  });
+
+  recommendationData.careers.forEach(career => {
+    const li = document.createElement('li');
+    li.textContent = `Career: ${career}`;
+    recommendationsList.appendChild(li);
+  });
+  }
+
+  // Restart Quiz
+  function restartQuiz() {
+    currentQuestionIndex = 0;
+    totalScore = 0;
+    document.getElementById('recommendations-section').classList.add('hidden');
+    document.getElementById('start-section').classList.remove('hidden');
+  }
+</script>
+
+</body>
+</html>
+ 
